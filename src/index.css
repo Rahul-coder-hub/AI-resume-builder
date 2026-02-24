@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: hsl(245 58% 51%);
+  --color-primary-foreground: hsl(0 0% 100%);
+}
+
+:root {
+  --primary: 245 58% 51%;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900;
+}

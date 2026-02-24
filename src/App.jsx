@@ -10,6 +10,11 @@ import TestChecklist from './pages/TestChecklist';
 import ShipLock from './pages/ShipLock';
 import StepPage from './pages/ResumeBuilder/StepPage';
 import ProofPage from './pages/ResumeBuilder/ProofPage';
+import ResumeAppLayout from './components/layout/ResumeAppLayout';
+import Home from './pages/ResumeApp/Home';
+import Builder from './pages/ResumeApp/Builder';
+import Preview from './pages/ResumeApp/Preview';
+import Proof from './pages/ResumeApp/Proof';
 
 // Placeholder Pages
 const Practice = () => <h1 className="text-3xl font-bold">Practice Problems</h1>;
@@ -37,9 +42,17 @@ function App() {
           <Route path="/prp/08-ship" element={<ShipLock />} />
         </Route>
 
-        {/* Project 3: AI Resume Builder */}
+        {/* Project 3: AI Resume Builder Build Track */}
         <Route path="/rb/:stepId" element={<StepPage />} />
         <Route path="/rb/proof" element={<ProofPage />} />
+
+        {/* AI Resume Builder App */}
+        <Route element={<ResumeAppLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/builder" element={<Builder />} />
+          <Route path="/preview" element={<Preview />} />
+          <Route path="/proof" element={<Proof />} />
+        </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

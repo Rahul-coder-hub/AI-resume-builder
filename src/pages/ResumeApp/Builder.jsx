@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useResumeData } from '../../hooks/useResumeData';
 import ResumeSheet from '../../components/resume/ResumeSheet';
-import { Plus, User, FileText, GraduationCap, Briefcase, Code, Link as LinkIcon, Database, Trash2, AlertCircle } from 'lucide-react';
+import {
+    Plus, User, FileText, GraduationCap, Briefcase,
+    Code, Link as LinkIcon, Database, Trash2,
+    AlertCircle, Layout as LayoutIcon, CheckCircle2
+} from 'lucide-react';
 
 const SectionHeader = ({ icon: Icon, title }) => (
     <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-2">
@@ -20,13 +24,50 @@ const Input = ({ label, ...props }) => (
     </div>
 );
 
-const TextArea = ({ label, ...props }) => (
+const BulletGuidance = ({ text }) => {
+    const ACTION_VERBS = ['Built', 'Developed', 'Designed', 'Implemented', 'Led', 'Improved', 'Created', 'Optimized', 'Automated'];
+
+    const suggestions = useMemo(() => {
+        if (!text.trim()) return [];
+        const results = [];
+
+        const startsWithVerb = ACTION_VERBS.some(verb =>
+            text.trim().toLowerCase().startsWith(verb.toLowerCase())
+        );
+        if (!startsWithVerb) {
+            results.push("Start with a strong action verb (e.g., Developed, Optimized).");
+        }
+
+        const hasNumbers = /\d+|%|\b\d+k\b/i.test(text);
+        if (!hasNumbers) {
+            results.push("Add measurable impact (numbers/metrics).");
+        }
+
+        return results;
+    }, [text]);
+
+    if (suggestions.length === 0) return null;
+
+    return (
+        <div className="mt-2 space-y-1">
+            {suggestions.map((s, i) => (
+                <div key={i} className="text-[10px] font-medium text-amber-600 flex items-center gap-1.5 opacity-80">
+                    <AlertCircle size={10} />
+                    {s}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const TextArea = ({ label, showGuidance, ...props }) => (
     <div className="mb-4">
         <label className="block text-xs font-bold text-gray-400 uppercase mb-1">{label}</label>
         <textarea
             {...props}
             className="w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all resize-none h-24"
         />
+        {showGuidance && <BulletGuidance text={props.value || ''} />}
     </div>
 );
 
@@ -49,7 +90,11 @@ const Builder = () => {
         loadSampleData,
         atsScore,
         suggestions,
+        selectedTemplate,
+        setSelectedTemplate,
     } = useResumeData();
+
+    const templates = ['Classic', 'Modern', 'Minimal'];
 
     return (
         <div className="h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-[1fr_1fr]">
@@ -69,11 +114,27 @@ const Builder = () => {
                     </button>
                 </div>
 
-                {/* ATS Score Section */}
+                {/* Template Tabs */}
+                <div className="flex bg-gray-50 p-1 rounded-xl w-fit border border-gray-100">
+                    {templates.map(t => (
+                        <button
+                            key={t}
+                            onClick={() => setSelectedTemplate(t)}
+                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedTemplate === t
+                                    ? 'bg-white text-black shadow-sm'
+                                    : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {t}
+                        </button>
+                    ))}
+                </div>
+
+                {/* ATS Score & Improvements */}
                 <section className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">ATS Readiness Score</h3>
+                            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">ATS Readiness Score</h3>
                             <div className="text-4xl font-black text-black">{atsScore}<span className="text-lg text-gray-300 ml-1">/100</span></div>
                         </div>
                         <div className="w-16 h-16 relative">
@@ -84,16 +145,24 @@ const Builder = () => {
                         </div>
                     </div>
 
-                    {suggestions.length > 0 && (
-                        <div className="space-y-2 mt-4">
-                            {suggestions.map((suggestion, i) => (
-                                <div key={i} className="flex items-start gap-2 text-xs font-medium text-gray-600 bg-white p-2 rounded-lg border border-gray-100">
-                                    <AlertCircle size={14} className="text-gray-400 mt-0.5 shrink-0" />
-                                    {suggestion}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <div className="space-y-4">
+                        <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-wider">Top 3 Improvements</h4>
+                        {suggestions.length > 0 ? (
+                            <div className="space-y-2">
+                                {suggestions.map((suggestion, i) => (
+                                    <div key={i} className="flex items-start gap-2 text-xs font-semibold text-gray-600 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                        <AlertCircle size={14} className="text-amber-500 mt-0.5 shrink-0" />
+                                        {suggestion}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50/50 p-3 rounded-xl border border-green-100">
+                                <CheckCircle2 size={14} />
+                                Your resume is highly optimized!
+                            </div>
+                        )}
+                    </div>
                 </section>
 
                 {/* Personal Info */}
@@ -164,7 +233,13 @@ const Builder = () => {
                                 <Input label="Role" value={exp.role} onChange={(e) => updateExperience(i, 'role', e.target.value)} />
                             </div>
                             <Input label="Duration" value={exp.duration} onChange={(e) => updateExperience(i, 'duration', e.target.value)} />
-                            <TextArea label="Description" placeholder="Tip: Include numbers like % or $ to boost ATS score." value={exp.description} onChange={(e) => updateExperience(i, 'description', e.target.value)} />
+                            <TextArea
+                                label="Description"
+                                placeholder="Tip: Start with Built, Led, Optimized... and add numbers."
+                                value={exp.description}
+                                onChange={(e) => updateExperience(i, 'description', e.target.value)}
+                                showGuidance={true}
+                            />
                         </div>
                     ))}
                 </section>
@@ -186,7 +261,12 @@ const Builder = () => {
                                 <Trash2 size={16} />
                             </button>
                             <Input label="Project Title" value={proj.title} onChange={(e) => updateProject(i, 'title', e.target.value)} />
-                            <TextArea label="Description" value={proj.description} onChange={(e) => updateProject(i, 'description', e.target.value)} />
+                            <TextArea
+                                label="Description"
+                                value={proj.description}
+                                onChange={(e) => updateProject(i, 'description', e.target.value)}
+                                showGuidance={true}
+                            />
                         </div>
                     ))}
                 </section>
@@ -214,8 +294,8 @@ const Builder = () => {
 
             {/* Right: Live preview panel */}
             <div className="bg-gray-100 flex items-start justify-center p-4 lg:p-12 overflow-y-auto sticky top-16 h-[calc(100vh-64px)]">
-                <div className="w-full max-w-[210mm] scale-[0.6] lg:scale-[0.85] xl:scale-[0.95] origin-top shadow-2xl">
-                    <ResumeSheet data={resumeData} />
+                <div className="w-full max-w-[210mm] scale-[0.6] lg:scale-[0.8] xl:scale-[0.9] origin-top shadow-2xl transition-all">
+                    <ResumeSheet data={resumeData} template={selectedTemplate} />
                 </div>
             </div>
         </div>

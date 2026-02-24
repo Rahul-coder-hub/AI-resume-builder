@@ -19,6 +19,7 @@ const INITIAL_DATA = {
 };
 
 const STORAGE_KEY = 'resumeBuilderData';
+const TEMPLATE_KEY = 'selectedTemplate';
 
 export const useResumeData = () => {
     const [resumeData, setResumeData] = useState(() => {
@@ -26,10 +27,18 @@ export const useResumeData = () => {
         return saved ? JSON.parse(saved) : INITIAL_DATA;
     });
 
+    const [selectedTemplate, setSelectedTemplate] = useState(() => {
+        return localStorage.getItem(TEMPLATE_KEY) || 'Classic';
+    });
+
     // Auto-save on every change
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
     }, [resumeData]);
+
+    useEffect(() => {
+        localStorage.setItem(TEMPLATE_KEY, selectedTemplate);
+    }, [selectedTemplate]);
 
     const updatePersonalInfo = useCallback((info) => {
         setResumeData(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, ...info } }));
@@ -207,5 +216,7 @@ export const useResumeData = () => {
         loadSampleData,
         atsScore: atsAnalysis.score,
         suggestions: atsAnalysis.suggestions,
+        selectedTemplate,
+        setSelectedTemplate,
     };
 };

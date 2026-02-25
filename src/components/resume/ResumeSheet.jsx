@@ -39,9 +39,9 @@ const ResumeSheet = ({ data, template = 'Classic' }) => {
     const style = layouts[template] || layouts.Classic;
 
     return (
-        <div className={`bg-white p-[15mm] md:p-[20mm] text-black font-serif shadow-sm min-h-full border border-gray-100 ${template === 'Minimal' ? 'font-sans' : ''}`}>
+        <div className={`bg-white p-[15mm] md:p-[20mm] text-black font-serif min-h-full print:border-0 print:shadow-none print:p-0 ${template === 'Minimal' ? 'font-sans' : ''}`}>
             {/* Header */}
-            <header className={style.header}>
+            <header className={`${style.header} break-inside-avoid`}>
                 <div className={style.headerContent}>
                     <h1 className={style.name}>
                         {personalInfo.name || 'Your Name'}
@@ -62,7 +62,7 @@ const ResumeSheet = ({ data, template = 'Classic' }) => {
 
             {/* Summary */}
             {summary && (
-                <section className={style.section}>
+                <section className={`${style.section} break-inside-avoid`}>
                     <h2 className={style.sectionTitle}>Summary</h2>
                     <p className="text-sm leading-relaxed text-gray-800">{summary}</p>
                 </section>
@@ -74,7 +74,7 @@ const ResumeSheet = ({ data, template = 'Classic' }) => {
                     <h2 className={style.sectionTitle}>Experience</h2>
                     <div className="space-y-8">
                         {experience.map((exp, i) => (
-                            <div key={i}>
+                            <div key={i} className="break-inside-avoid">
                                 <div className="flex justify-between items-baseline mb-1">
                                     <h3 className="font-bold text-sm tracking-tight">{exp.role || 'Role'}</h3>
                                     <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">{exp.duration}</span>
@@ -90,7 +90,7 @@ const ResumeSheet = ({ data, template = 'Classic' }) => {
             <div className={style.grid}>
                 {/* Education */}
                 {education.length > 0 && (
-                    <section className={style.section}>
+                    <section className={`${style.section} break-inside-avoid`}>
                         <h2 className={style.sectionTitle}>Education</h2>
                         <div className="space-y-6">
                             {education.map((edu, i) => (
@@ -106,11 +106,11 @@ const ResumeSheet = ({ data, template = 'Classic' }) => {
 
                 {/* Skills */}
                 {skills && (
-                    <section className={style.section}>
+                    <section className={`${style.section} break-inside-avoid`}>
                         <h2 className={style.sectionTitle}>Technical Skills</h2>
                         <div className="flex flex-wrap gap-2">
                             {skills.split(',').filter(s => s.trim()).map((skill, i) => (
-                                <span key={i} className="text-[9px] font-bold uppercase tracking-widest bg-gray-50 px-2 py-1 border border-gray-100">
+                                <span key={i} className="text-[9px] font-bold uppercase tracking-widest bg-gray-50 print:bg-white px-2 py-1 border border-gray-100">
                                     {skill.trim()}
                                 </span>
                             ))}
@@ -125,7 +125,7 @@ const ResumeSheet = ({ data, template = 'Classic' }) => {
                     <h2 className={style.sectionTitle}>Projects</h2>
                     <div className="grid grid-cols-1 gap-8">
                         {projects.map((proj, i) => (
-                            <div key={i}>
+                            <div key={i} className="break-inside-avoid">
                                 <h3 className="font-bold text-xs uppercase tracking-wide mb-2">{proj.title || 'Project Title'}</h3>
                                 {proj.description && <p className="text-xs leading-relaxed text-gray-600 whitespace-pre-line">{proj.description}</p>}
                             </div>

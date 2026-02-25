@@ -12,3 +12,40 @@
 body {
   @apply bg-gray-50 text-gray-900;
 }
+
+@media print {
+  body {
+    @apply bg-white text-black;
+    margin: 0;
+    padding: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  @page {
+    margin: 15mm;
+    size: auto;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Reset layout for print */
+  .min-h-screen {
+    min-height: auto !important;
+  }
+
+  .flex-1 {
+    display: block !important;
+  }
+}

@@ -26,32 +26,32 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/analyze" element={<AnalyzeJD />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/results/:id" element={<Results />} />
-          <Route path="/practice" element={<Practice />} />
-          <Route path="/assessments" element={<Assessments />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/prp/07-test" element={<TestChecklist />} />
-          <Route path="/prp/08-ship" element={<ShipLock />} />
-        </Route>
-
-        {/* Project 3: AI Resume Builder Build Track */}
-        <Route path="/rb/:stepId" element={<StepPage />} />
-        <Route path="/rb/proof" element={<ProofPage />} />
-
-        {/* AI Resume Builder App */}
+        {/* AI Resume Builder App (Primary) */}
         <Route element={<ResumeAppLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/builder" element={<Builder />} />
           <Route path="/preview" element={<Preview />} />
           <Route path="/proof" element={<Proof />} />
+        </Route>
+
+        {/* Build Track (Project 3) */}
+        <Route path="/rb/:stepId" element={<StepPage />} />
+        <Route path="/rb/proof" element={<ProofPage />} />
+
+        {/* Legacy: Job Readiness Platform (Moved to /platform) */}
+        <Route path="/platform" element={<LandingPage />} />
+        <Route path="/platform" element={<DashboardLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="analyze" element={<AnalyzeJD />} />
+          <Route path="history" element={<History />} />
+          <Route path="results" element={<Results />} />
+          <Route path="results/:id" element={<Results />} />
+          <Route path="practice" element={<Practice />} />
+          <Route path="assessments" element={<Assessments />} />
+          <Route path="resources" element={<Resources />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="prp/07-test" element={<TestChecklist />} />
+          <Route path="prp/08-ship" element={<ShipLock />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

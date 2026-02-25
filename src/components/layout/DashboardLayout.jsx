@@ -37,16 +37,16 @@ const DashboardLayout = () => {
                 </div>
 
                 <nav className="flex-1 px-4 space-y-1 mt-4">
-                    <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-                    <SidebarItem to="/analyze" icon={Search} label="Analyze JD" />
-                    <SidebarItem to="/history" icon={HistoryIcon} label="History" />
+                    <SidebarItem to="/platform/dashboard" icon={LayoutDashboard} label="Dashboard" />
+                    <SidebarItem to="/platform/analyze" icon={Search} label="Analyze JD" />
+                    <SidebarItem to="/platform/history" icon={HistoryIcon} label="History" />
                     <div className="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                         Preparation
                     </div>
-                    <SidebarItem to="/practice" icon={BookOpen} label="Practice" />
-                    <SidebarItem to="/assessments" icon={FileCheck} label="Assessments" />
-                    <SidebarItem to="/resources" icon={Library} label="Resources" />
-                    <SidebarItem to="/profile" icon={UserCircle} label="Profile" />
+                    <SidebarItem to="/platform/practice" icon={BookOpen} label="Practice" />
+                    <SidebarItem to="/platform/assessments" icon={FileCheck} label="Assessments" />
+                    <SidebarItem to="/platform/resources" icon={Library} label="Resources" />
+                    <SidebarItem to="/platform/profile" icon={UserCircle} label="Profile" />
                 </nav>
 
                 <div className="p-4 border-t border-gray-100">

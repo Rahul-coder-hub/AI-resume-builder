@@ -57,7 +57,10 @@ export const convertToPlainText = (data) => {
 
     // Skills
     if (skills) {
-        text += `TECHNICAL SKILLS\n${skills}\n`;
+        text += `TECHNICAL SKILLS\n`;
+        if (skills.technical?.length > 0) text += `Technical: ${skills.technical.join(', ')}\n`;
+        if (skills.soft?.length > 0) text += `Soft Skills: ${skills.soft.join(', ')}\n`;
+        if (skills.tools?.length > 0) text += `Tools: ${skills.tools.join(', ')}\n`;
     }
 
     return text.trim();

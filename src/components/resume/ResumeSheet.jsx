@@ -4,12 +4,12 @@ import { ExternalLink, Github, Mail, Phone, MapPin, Globe, Linkedin } from 'luci
 const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 40%)' }) => {
     if (!data) return null;
 
-    const { personalInfo, summary, education, experience, projects, skills, links } = data;
+    const { personalInfo = {}, summary = '', education = [], experience = [], projects = [], skills = {}, links = {} } = data || {};
 
     const hasEducation = education && education.length > 0;
     const hasExperience = experience && experience.length > 0;
     const hasProjects = projects && projects.length > 0;
-    const hasAnySkills = Object.values(skills).some(list => list && list.length > 0);
+    const hasAnySkills = skills && typeof skills === 'object' && Object.values(skills).some(list => Array.isArray(list) && list.length > 0);
 
     const SkillGroup = ({ title, list, isSidebar = false }) => {
         if (!list || list.length === 0) return null;
@@ -24,8 +24,8 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                             key={i}
                             style={isSidebar ? {} : { borderColor: `${accentColor}20`, color: accentColor }}
                             className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1 border ${isSidebar
-                                    ? 'bg-white/10 border-white/20 text-white'
-                                    : 'bg-gray-50/50'
+                                ? 'bg-white/10 border-white/20 text-white'
+                                : 'bg-gray-50/50'
                                 }`}
                         >
                             {skill}

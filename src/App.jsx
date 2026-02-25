@@ -39,19 +39,21 @@ function App() {
         <Route path="/rb/proof" element={<ProofPage />} />
 
         {/* Legacy: Job Readiness Platform (Moved to /platform) */}
-        <Route path="/platform" element={<LandingPage />} />
-        <Route path="/platform" element={<DashboardLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="analyze" element={<AnalyzeJD />} />
-          <Route path="history" element={<History />} />
-          <Route path="results" element={<Results />} />
-          <Route path="results/:id" element={<Results />} />
-          <Route path="practice" element={<Practice />} />
-          <Route path="assessments" element={<Assessments />} />
-          <Route path="resources" element={<Resources />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="prp/07-test" element={<TestChecklist />} />
-          <Route path="prp/08-ship" element={<ShipLock />} />
+        <Route path="/platform">
+          <Route index element={<LandingPage />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="analyze" element={<AnalyzeJD />} />
+            <Route path="history" element={<History />} />
+            <Route path="results" element={<Results />} />
+            <Route path="results/:id" element={<Results />} />
+            <Route path="practice" element={<Practice />} />
+            <Route path="assessments" element={<Assessments />} />
+            <Route path="resources" element={<Resources />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="prp/07-test" element={<TestChecklist />} />
+            <Route path="prp/08-ship" element={<ShipLock />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

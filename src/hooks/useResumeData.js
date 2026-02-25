@@ -22,8 +22,11 @@ const INITIAL_DATA = {
     },
 };
 
-const STORAGE_KEY = 'resumeBuilderData_v2'; // Changed key to avoid conflicts with old structure
+const STORAGE_KEY = 'resumeBuilderData_v2';
 const TEMPLATE_KEY = 'selectedTemplate';
+const COLOR_KEY = 'selectedColor';
+
+const DEFAULT_COLOR = 'hsl(168, 60%, 40%)';
 
 export const useResumeData = () => {
     const [resumeData, setResumeData] = useState(() => {
@@ -51,6 +54,10 @@ export const useResumeData = () => {
         return localStorage.getItem(TEMPLATE_KEY) || 'Classic';
     });
 
+    const [selectedColor, setSelectedColor] = useState(() => {
+        return localStorage.getItem(COLOR_KEY) || DEFAULT_COLOR;
+    });
+
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
     }, [resumeData]);
@@ -58,6 +65,10 @@ export const useResumeData = () => {
     useEffect(() => {
         localStorage.setItem(TEMPLATE_KEY, selectedTemplate);
     }, [selectedTemplate]);
+
+    useEffect(() => {
+        localStorage.setItem(COLOR_KEY, selectedColor);
+    }, [selectedColor]);
 
     const updatePersonalInfo = useCallback((info) => {
         setResumeData(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, ...info } }));
@@ -265,5 +276,7 @@ export const useResumeData = () => {
         suggestions: atsAnalysis.suggestions,
         selectedTemplate,
         setSelectedTemplate,
+        selectedColor,
+        setSelectedColor
     };
 };

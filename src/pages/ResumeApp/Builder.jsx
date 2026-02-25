@@ -5,7 +5,8 @@ import {
     Plus, User, FileText, GraduationCap, Briefcase,
     Code, Link as LinkIcon, Database, Trash2,
     AlertCircle, Layout as LayoutIcon, CheckCircle2,
-    X, Sparkles, ChevronDown, ChevronUp, ExternalLink, Github
+    X, Sparkles, ChevronDown, ChevronUp, ExternalLink, Github,
+    Check
 } from 'lucide-react';
 
 const SectionHeader = ({ icon: Icon, title }) => (
@@ -123,6 +124,67 @@ const TagInput = ({ tags = [], onUpdate, placeholder = "Type and press Enter..."
     );
 };
 
+// Thumbnail helper
+const TemplateThumbnail = ({ name, active, onClick }) => {
+    const renderMini = () => {
+        if (name === 'Classic') return (
+            <div className="w-full h-full bg-white p-2 flex flex-col items-center gap-1">
+                <div className="w-1/2 h-0.5 bg-gray-900 mb-1" />
+                <div className="w-full h-px bg-gray-100" />
+                <div className="w-full flex flex-col gap-1 mt-1">
+                    <div className="w-full h-[2px] bg-gray-100" />
+                    <div className="w-3/4 h-[2px] bg-gray-100" />
+                    <div className="w-full h-[2px] bg-gray-100" />
+                </div>
+            </div>
+        );
+        if (name === 'Modern') return (
+            <div className="w-full h-full bg-white flex">
+                <div className="w-1/3 h-full bg-gray-200 p-1 flex flex-col gap-1">
+                    <div className="w-4 h-4 bg-white/50 rounded-full" />
+                    <div className="w-full h-[2px] bg-white/50" />
+                    <div className="w-full h-[2px] bg-white/50" />
+                </div>
+                <div className="flex-1 p-2 flex flex-col gap-1">
+                    <div className="w-1/2 h-[2px] bg-gray-300" />
+                    <div className="w-full h-[1px] bg-gray-100" />
+                    <div className="w-full h-[1px] bg-gray-100" />
+                    <div className="w-full h-[1px] bg-gray-100" />
+                </div>
+            </div>
+        );
+        if (name === 'Minimal') return (
+            <div className="w-full h-full bg-white p-3 flex flex-col gap-2">
+                <div className="w-1/3 h-[2px] bg-gray-900" />
+                <div className="w-full grid grid-cols-[30px_1fr] gap-2">
+                    <div className="h-1 bg-gray-100" />
+                    <div className="h-1 bg-gray-100" />
+                    <div className="h-1 bg-gray-100" />
+                    <div className="h-1 bg-gray-100" />
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            className={`group relative w-[120px] aspect-[1/1.4] rounded-lg border-2 transition-all overflow-hidden ${active ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-gray-100 hover:border-gray-300'
+                }`}
+        >
+            {renderMini()}
+            {active && (
+                <div className="absolute top-1 right-1 w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-md">
+                    <Check size={12} strokeWidth={4} />
+                </div>
+            )}
+            <div className="absolute inset-x-0 bottom-0 bg-white/90 backdrop-blur-sm py-1 border-t border-gray-100">
+                <span className="text-[10px] font-black uppercase text-gray-900">{name}</span>
+            </div>
+        </button>
+    );
+};
+
 const Builder = () => {
     const {
         resumeData,
@@ -145,12 +207,21 @@ const Builder = () => {
         suggestions,
         selectedTemplate,
         setSelectedTemplate,
+        selectedColor,
+        setSelectedColor
     } = useResumeData();
 
     const [isSuggesting, setIsSuggesting] = useState(false);
     const [expandedProject, setExpandedProject] = useState(0);
 
     const templates = ['Classic', 'Modern', 'Minimal'];
+    const themes = [
+        { name: 'Teal', value: 'hsl(168, 60%, 40%)' },
+        { name: 'Navy', value: 'hsl(220, 60%, 35%)' },
+        { name: 'Burgundy', value: 'hsl(345, 60%, 35%)' },
+        { name: 'Forest', value: 'hsl(150, 50%, 30%)' },
+        { name: 'Charcoal', value: 'hsl(0, 0%, 25%)' }
+    ];
 
     const handleSuggestSkills = () => {
         setIsSuggesting(true);
@@ -176,22 +247,6 @@ const Builder = () => {
                         <Database size={16} />
                         Load Sample Data
                     </button>
-                </div>
-
-                {/* Template Tabs */}
-                <div className="flex bg-gray-50 p-1 rounded-xl w-fit border border-gray-100">
-                    {templates.map(t => (
-                        <button
-                            key={t}
-                            onClick={() => setSelectedTemplate(t)}
-                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedTemplate === t
-                                ? 'bg-white text-black shadow-sm'
-                                : 'text-gray-400 hover:text-gray-600'
-                                }`}
-                        >
-                            {t}
-                        </button>
-                    ))}
                 </div>
 
                 {/* ATS Score & Improvements */}
@@ -373,8 +428,8 @@ const Builder = () => {
                             onClick={handleSuggestSkills}
                             disabled={isSuggesting}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isSuggesting
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-violet-50 text-violet-600 hover:bg-violet-100'
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-violet-50 text-violet-600 hover:bg-violet-100'
                                 }`}
                         >
                             <Sparkles size={14} className={isSuggesting ? 'animate-spin' : ''} />
@@ -453,10 +508,52 @@ const Builder = () => {
                 </section>
             </div>
 
-            {/* Right: Live preview panel */}
-            <div className="bg-gray-100 flex items-start justify-center p-4 lg:p-12 overflow-y-auto sticky top-16 h-[calc(100vh-64px)]">
-                <div className="w-full max-w-[210mm] scale-[0.6] lg:scale-[0.8] xl:scale-[0.9] origin-top shadow-2xl transition-all">
-                    <ResumeSheet data={resumeData} template={selectedTemplate} />
+            {/* Right: Preview & Customization panel */}
+            <div className="bg-gray-100 p-8 lg:p-12 overflow-y-auto sticky top-16 h-[calc(100vh-64px)] flex flex-col gap-10">
+                <div className="mx-auto w-full max-w-[500px] flex flex-col gap-10 animate-in fade-in duration-500">
+                    {/* Template Selection */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <SectionHeader icon={LayoutIcon} title="Layout Templates" />
+                        <div className="flex flex-wrap justify-between gap-4 mt-4">
+                            {templates.map(t => (
+                                <TemplateThumbnail
+                                    key={t}
+                                    name={t}
+                                    active={selectedTemplate === t}
+                                    onClick={() => setSelectedTemplate(t)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Color Customization */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <SectionHeader icon={Sparkles} title="Color Theme" />
+                        <div className="flex gap-4 mt-4">
+                            {themes.map(theme => (
+                                <button
+                                    key={theme.name}
+                                    onClick={() => setSelectedColor(theme.value)}
+                                    className={`w-10 h-10 rounded-full transition-all flex items-center justify-center p-0.5 border-4 ${selectedColor === theme.value ? 'scale-110 shadow-lg' : 'hover:scale-105 border-transparent'
+                                        }`}
+                                    style={{ backgroundColor: theme.value, borderColor: selectedColor === theme.value ? 'white' : 'transparent' }}
+                                >
+                                    {selectedColor === theme.value && <Check size={16} className="text-white" />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Resume Sheet Preview */}
+                    <div className="w-full flex justify-center">
+                        <div className="w-full origin-top scale-[0.5] sm:scale-[0.6] lg:scale-[0.7] xl:scale-[0.8] shadow-2xl transition-all">
+                            <ResumeSheet
+                                data={resumeData}
+                                template={selectedTemplate}
+                                accentColor={selectedColor}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

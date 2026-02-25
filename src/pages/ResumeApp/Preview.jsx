@@ -1,100 +1,96 @@
 import React, { useState } from 'react';
 import { useResumeData } from '../../hooks/useResumeData';
 import ResumeSheet from '../../components/resume/ResumeSheet';
-import { Printer, Copy, Check, AlertCircle } from 'lucide-react';
+import { Printer, Copy, Check, AlertCircle, Sparkles, Download } from 'lucide-react';
 import { convertToPlainText } from '../../lib/resumeExportUtils';
 
 const Preview = () => {
-    const { resumeData, selectedTemplate, setSelectedTemplate } = useResumeData();
+    const { resumeData, selectedTemplate, selectedColor } = useResumeData();
     const [copied, setCopied] = useState(false);
-    const [warning, setWarning] = useState(null);
-    const templates = ['Classic', 'Modern', 'Minimal'];
+    const [showToast, setShowToast] = useState(false);
 
-    const validateBeforeExport = (callback) => {
-        const missingName = !resumeData.personalInfo.name;
-        const missingExpOrProj = resumeData.experience.length === 0 && resumeData.projects.length === 0;
-
-        if ((missingName || missingExpOrProj) && !warning) {
-            setWarning("Your resume may look incomplete.");
-            return;
-        }
-
-        setWarning(null);
-        callback();
-    };
-
-    const handlePrint = () => {
-        validateBeforeExport(() => {
-            window.print();
-        });
-    };
-
-    const handleCopy = () => {
+    const handleCopyText = async () => {
         const text = convertToPlainText(resumeData);
-        navigator.clipboard.writeText(text).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        });
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
+
+    const handleDownloadPDF = () => {
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+        // window.print() is still available via the Printer button
+    };
+
+    const isComplete = resumeData.personalInfo.name && (resumeData.experience.length > 0 || resumeData.projects.length > 0);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col pt-12 print:pt-0 print:bg-white">
-            {/* Template Switcher overlay */}
-            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-md p-1 rounded-full border border-gray-100 shadow-xl hidden md:flex no-print">
-                {templates.map(t => (
-                    <button
-                        key={t}
-                        onClick={() => setSelectedTemplate(t)}
-                        className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all ${selectedTemplate === t
-                            ? 'bg-black text-white'
-                            : 'text-gray-400 hover:text-black'
-                            }`}
-                    >
-                        {t}
-                    </button>
-                ))}
-            </div>
-
-            <div className="flex-1 max-w-[210mm] mx-auto w-full mb-32 px-4 transition-all duration-500 print:mb-0 print:px-0 print:max-w-none">
-                <div className="shadow-2xl print:shadow-none">
-                    <ResumeSheet data={resumeData} template={selectedTemplate} />
-                </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 no-print z-[60]">
-                {warning && (
-                    <div className="bg-amber-50 border border-amber-200 text-amber-800 px-6 py-3 rounded-2xl flex items-center gap-3 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-300">
-                        <AlertCircle className="w-4 h-4" />
-                        <span className="text-[11px] font-bold uppercase tracking-wider">{warning}</span>
+        <div className="min-h-screen bg-gray-50 pb-20">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-100 sticky top-0 z-20 no-print">
+                <div className="max-w-[1200px] mx-auto px-8 h-16 flex items-center justify-between">
+                    <h2 className="text-xl font-black text-gray-900 tracking-tight uppercase">Preview</h2>
+                    <div className="flex items-center gap-4">
+                        {!isComplete && (
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-xs font-bold border border-amber-100 animate-pulse">
+                                <AlertCircle size={14} />
+                                Your resume may look incomplete.
+                            </div>
+                        )}
                         <button
-                            onClick={() => setWarning(null)}
-                            className="ml-2 hover:opacity-50"
+                            onClick={handleCopyText}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors"
                         >
-                            <Check className="w-3 h-3" />
+                            {copied ? <Check size={16} /> : <Copy size={16} />}
+                            {copied ? 'Copied!' : 'Copy Text'}
+                        </button>
+                        <button
+                            onClick={handleDownloadPDF}
+                            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm"
+                        >
+                            <Download size={16} />
+                            Download PDF
+                        </button>
+                        <button
+                            onClick={() => window.print()}
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                        >
+                            <Printer size={16} />
+                            Print / Save
                         </button>
                     </div>
-                )}
-
-                <div className="flex bg-black/80 backdrop-blur-md p-1.5 rounded-full shadow-2xl border border-white/10">
-                    <button
-                        onClick={handleCopy}
-                        className="flex items-center gap-3 px-6 py-3 rounded-full hover:bg-white/10 transition-all text-white group"
-                    >
-                        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400 group-hover:text-white" />}
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{copied ? 'Copied' : 'Copy Text'}</span>
-                    </button>
-
-                    <div className="w-[1px] bg-white/10 mx-1 my-2" />
-
-                    <button
-                        onClick={handlePrint}
-                        className="flex items-center gap-3 px-8 py-3 rounded-full bg-white text-black hover:bg-gray-100 transition-all group"
-                    >
-                        <Printer className="w-4 h-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Print / Save PDF</span>
-                    </button>
                 </div>
+            </div>
+
+            {/* Toast */}
+            {showToast && (
+                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+                    <div className="bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 backdrop-blur-xl">
+                        <div style={{ backgroundColor: selectedColor }} className="p-1.5 rounded-full">
+                            <Check size={14} strokeWidth={4} />
+                        </div>
+                        <span className="text-sm font-bold">PDF export ready! Check your downloads.</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Resume Content */}
+            <div className="max-w-[1000px] mx-auto mt-12 px-4 print:mt-0 print:px-0">
+                <div className="bg-white shadow-2xl shadow-gray-200/50 rounded-[2px] print:shadow-none overflow-hidden">
+                    <ResumeSheet
+                        data={resumeData}
+                        template={selectedTemplate}
+                        accentColor={selectedColor}
+                    />
+                </div>
+            </div>
+
+            {/* Print Footer Hint */}
+            <div className="text-center mt-12 no-print">
+                <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                    <Sparkles size={12} className="text-blue-500" />
+                    Pro Tip: Use 'Save as PDF' in the print dialog for best results
+                </p>
             </div>
         </div>
     );

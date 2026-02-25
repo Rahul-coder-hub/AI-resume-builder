@@ -271,7 +271,7 @@ const Builder = () => {
                                 {suggestions.map((suggestion, i) => (
                                     <div key={i} className="flex items-start gap-2 text-xs font-semibold text-gray-600 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
                                         <AlertCircle size={14} className="text-amber-500 mt-0.5 shrink-0" />
-                                        {suggestion}
+                                        {typeof suggestion === 'string' ? suggestion : suggestion.text}
                                     </div>
                                 ))}
                             </div>
@@ -385,7 +385,7 @@ const Builder = () => {
                                     <div className="mb-4">
                                         <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Tech Stack</label>
                                         <TagInput
-                                            tags={proj.techStack || []}
+                                            tags={Array.isArray(proj.techStack) ? proj.techStack : []}
                                             onUpdate={(tags) => updateProject(i, 'techStack', tags)}
                                             placeholder="React, Firebase..."
                                         />

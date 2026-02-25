@@ -269,7 +269,7 @@ export const useResumeData = () => {
         // 11. Summary Action Verbs (+10)
         const containsActionVerbs = ACTION_VERBS.some(verb =>
             (resumeData.summary || '').toLowerCase().includes(verb) ||
-            resumeData.experience.some(exp => (exp.description || '').toLowerCase().includes(verb))
+            (resumeData.experience || []).some(exp => (exp.description || '').toLowerCase().includes(verb))
         );
         if (containsActionVerbs) {
             score += 10;

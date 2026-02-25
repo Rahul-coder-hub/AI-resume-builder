@@ -253,14 +253,14 @@ export const useResumeData = () => {
         }
 
         // 9. LinkedIn (+5)
-        if (resumeData.links.linkedin.trim()) {
+        if (resumeData.links?.linkedin?.trim()) {
             score += 5;
         } else {
             suggestions.push({ text: "Add your LinkedIn profile", points: 5 });
         }
 
         // 10. GitHub (+5)
-        if (resumeData.links.github.trim()) {
+        if (resumeData.links?.github?.trim()) {
             score += 5;
         } else {
             suggestions.push({ text: "Add your GitHub profile", points: 5 });
@@ -268,8 +268,8 @@ export const useResumeData = () => {
 
         // 11. Summary Action Verbs (+10)
         const containsActionVerbs = ACTION_VERBS.some(verb =>
-            resumeData.summary.toLowerCase().includes(verb) ||
-            resumeData.experience.some(exp => exp.description.toLowerCase().includes(verb))
+            (resumeData.summary || '').toLowerCase().includes(verb) ||
+            resumeData.experience.some(exp => (exp.description || '').toLowerCase().includes(verb))
         );
         if (containsActionVerbs) {
             score += 10;

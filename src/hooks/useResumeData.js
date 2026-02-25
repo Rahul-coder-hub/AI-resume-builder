@@ -11,27 +11,46 @@ const INITIAL_DATA = {
     education: [],
     experience: [],
     projects: [],
-    skills: '',
+    skills: {
+        technical: [],
+        soft: [],
+        tools: []
+    },
     links: {
         github: '',
         linkedin: '',
     },
 };
 
-const STORAGE_KEY = 'resumeBuilderData';
+const STORAGE_KEY = 'resumeBuilderData_v2'; // Changed key to avoid conflicts with old structure
 const TEMPLATE_KEY = 'selectedTemplate';
 
 export const useResumeData = () => {
     const [resumeData, setResumeData] = useState(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : INITIAL_DATA;
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Simple migration for old skills string structure
+                if (typeof parsed.skills === 'string') {
+                    parsed.skills = {
+                        technical: parsed.skills.split(',').map(s => s.trim()).filter(Boolean),
+                        soft: [],
+                        tools: []
+                    };
+                }
+                return parsed;
+            } catch (e) {
+                return INITIAL_DATA;
+            }
+        }
+        return INITIAL_DATA;
     });
 
     const [selectedTemplate, setSelectedTemplate] = useState(() => {
         return localStorage.getItem(TEMPLATE_KEY) || 'Classic';
     });
 
-    // Auto-save on every change
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
     }, [resumeData]);
@@ -81,7 +100,7 @@ export const useResumeData = () => {
     }, []);
 
     const addProject = useCallback(() => {
-        setResumeData(prev => ({ ...prev, projects: [...prev.projects, { title: '', description: '' }] }));
+        setResumeData(prev => ({ ...prev, projects: [...prev.projects, { title: '', description: '', techStack: [], liveUrl: '', githubUrl: '' }] }));
     }, []);
 
     const updateProject = useCallback((index, field, value) => {
@@ -96,8 +115,25 @@ export const useResumeData = () => {
         setResumeData(prev => ({ ...prev, projects: prev.projects.filter((_, i) => i !== index) }));
     }, []);
 
-    const updateSkills = useCallback((skills) => {
-        setResumeData(prev => ({ ...prev, skills }));
+    const updateSkills = useCallback((category, skills) => {
+        setResumeData(prev => ({
+            ...prev,
+            skills: {
+                ...prev.skills,
+                [category]: Array.isArray(skills) ? skills : []
+            }
+        }));
+    }, []);
+
+    const suggestSkills = useCallback(() => {
+        setResumeData(prev => ({
+            ...prev,
+            skills: {
+                technical: Array.from(new Set([...prev.skills.technical, "TypeScript", "React", "Node.js", "PostgreSQL", "GraphQL"])),
+                soft: Array.from(new Set([...prev.skills.soft, "Team Leadership", "Problem Solving"])),
+                tools: Array.from(new Set([...prev.skills.tools, "Git", "Docker", "AWS"]))
+            }
+        }));
     }, []);
 
     const updateLinks = useCallback((links) => {
@@ -120,10 +156,25 @@ export const useResumeData = () => {
                 { company: 'Tech Solutions', role: 'Frontend Developer', duration: '2023 - Present', description: 'Developing premium web interfaces and optimizing performance by 40% using modern frameworks.' },
             ],
             projects: [
-                { title: 'AI Portfolio Builder', description: 'An automated platform for generating developer portfolios with 95% accuracy.' },
-                { title: 'Task Manager Pro', description: 'A collaborative tool for team project management serving 10k users.' },
+                {
+                    title: 'AI Portfolio Builder',
+                    description: 'An automated platform for generating developer portfolios with 95% accuracy.',
+                    techStack: ['React', 'OpenAI', 'Tailwind'],
+                    liveUrl: 'https://portfolio-builder.ai',
+                    githubUrl: 'https://github.com/rahul/ai-portfolio'
+                },
+                {
+                    title: 'Task Manager Pro',
+                    description: 'A collaborative tool for team project management serving 10k users.',
+                    techStack: ['Node.js', 'PostgreSQL', 'Socket.io'],
+                    githubUrl: 'https://github.com/rahul/taskpro'
+                },
             ],
-            skills: 'React, Javascript, Node.js, Tailwind CSS, PostgreSQL, Git, Docker, AWS',
+            skills: {
+                technical: ['React', 'Javascript', 'Node.js', 'PostgreSQL'],
+                soft: ['Problem Solving', 'Communication'],
+                tools: ['Git', 'Docker', 'AWS']
+            },
             links: {
                 github: 'https://github.com/rahul-coder',
                 linkedin: 'https://linkedin.com/in/rahul-coder',
@@ -159,42 +210,37 @@ export const useResumeData = () => {
             suggestions.push("Add at least 1 professional experience entry.");
         }
 
-        // Skills list >= 8 items
-        const skillCount = resumeData.skills.split(',').filter(s => s.trim().length > 0).length;
-        if (skillCount >= 8) {
-            score += 10;
+        // Skills list >= 12 total items across categories
+        const totalSkillCount = Object.values(resumeData.skills).flat().length;
+        if (totalSkillCount >= 12) {
+            score += 15;
         } else {
-            suggestions.push("Add more skills (target 8+).");
+            suggestions.push("Add more skills across categories (target 12+ total).");
         }
 
-        // Links (GitHub or LinkedIn)
+        // Links
         if (resumeData.links.github || resumeData.links.linkedin) {
             score += 10;
         } else {
-            suggestions.push("Add a link to your GitHub or LinkedIn profile.");
+            suggestions.push("Add GitHub or LinkedIn.");
         }
 
-        // Impact (numbers in bullets)
+        // Impact
         const hasNumbers = [...resumeData.experience, ...resumeData.projects].some(item =>
             /\d+|%|\b\d+k\b/i.test(item.description)
         );
         if (hasNumbers) {
             score += 15;
         } else {
-            suggestions.push("Add measurable impact (numbers/metrics) in your descriptions.");
+            suggestions.push("Add metrics/numbers to descriptions.");
         }
 
-        // Education section complete
-        const eduComplete = resumeData.education.length > 0 && resumeData.education.every(edu =>
-            edu.school && edu.degree && edu.year
-        );
-        if (eduComplete) {
-            score += 10;
-        }
+        // Education
+        if (resumeData.education.length > 0) score += 5;
 
         return {
             score: Math.min(100, score),
-            suggestions: suggestions.slice(0, 3) // Return max 3
+            suggestions: suggestions.slice(0, 3)
         };
     }, [resumeData]);
 
@@ -212,6 +258,7 @@ export const useResumeData = () => {
         updateProject,
         removeProject,
         updateSkills,
+        suggestSkills,
         updateLinks,
         loadSampleData,
         atsScore: atsAnalysis.score,

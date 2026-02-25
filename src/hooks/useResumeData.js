@@ -28,6 +28,8 @@ const COLOR_KEY = 'selectedColor';
 
 const DEFAULT_COLOR = 'hsl(168, 60%, 40%)';
 
+const ACTION_VERBS = ['built', 'led', 'designed', 'improved', 'developed', 'created', 'optimized', 'automated', 'managed', 'implemented'];
+
 export const useResumeData = () => {
     const [resumeData, setResumeData] = useState(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -159,32 +161,26 @@ export const useResumeData = () => {
                 phone: '+91 98765 43210',
                 location: 'Bangalore, India',
             },
-            summary: 'Passionate software developer with 3+ years of experience in building scalable web applications using React and Node.js. Expertise in full-stack development and UI/UX design. Highly skilled in optimizing performance.',
+            summary: 'Passionate software developer with 3+ years of experience in building scalable web applications using React and Node.js. Expertise in full-stack development and UI/UX design. Highly skilled in optimizing performance and leading technical teams to success.',
             education: [
                 { school: 'KodNest University', degree: 'B.Tech in Computer Science', year: '2019-2023' },
             ],
             experience: [
-                { company: 'Tech Solutions', role: 'Frontend Developer', duration: '2023 - Present', description: 'Developing premium web interfaces and optimizing performance by 40% using modern frameworks.' },
+                { company: 'Tech Solutions', role: 'Frontend Developer', duration: '2023 - Present', description: 'Developed premium web interfaces and optimized performance by 40% using modern frameworks. Led a team of 5 developers to create a scalable architecture.' },
             ],
             projects: [
                 {
                     title: 'AI Portfolio Builder',
-                    description: 'An automated platform for generating developer portfolios with 95% accuracy.',
+                    description: 'Built an automated platform for generating developer portfolios with 95% accuracy.',
                     techStack: ['React', 'OpenAI', 'Tailwind'],
                     liveUrl: 'https://portfolio-builder.ai',
                     githubUrl: 'https://github.com/rahul/ai-portfolio'
                 },
-                {
-                    title: 'Task Manager Pro',
-                    description: 'A collaborative tool for team project management serving 10k users.',
-                    techStack: ['Node.js', 'PostgreSQL', 'Socket.io'],
-                    githubUrl: 'https://github.com/rahul/taskpro'
-                },
             ],
             skills: {
-                technical: ['React', 'Javascript', 'Node.js', 'PostgreSQL'],
-                soft: ['Problem Solving', 'Communication'],
-                tools: ['Git', 'Docker', 'AWS']
+                technical: ['React', 'Javascript', 'Node.js', 'PostgreSQL', 'TypeScript'],
+                soft: ['Problem Solving', 'Communication', 'Leadership'],
+                tools: ['Git', 'Docker', 'AWS', 'Figma']
             },
             links: {
                 github: 'https://github.com/rahul-coder',
@@ -194,64 +190,96 @@ export const useResumeData = () => {
         setResumeData(SAMPLE_DATA);
     }, []);
 
-    // ATS Scoring Logic
+    // Deterministic ATS Scoring Logic
     const atsAnalysis = useMemo(() => {
-        let score = 20; // Base score
+        let score = 0;
         const suggestions = [];
 
-        // Summary length 40–120 words
-        const summaryWords = resumeData.summary.trim().split(/\s+/).filter(w => w.length > 0).length;
-        if (summaryWords >= 40 && summaryWords <= 120) {
+        // 1. Name (+10)
+        if (resumeData.personalInfo.name.trim()) {
+            score += 10;
+        } else {
+            suggestions.push({ text: "Add your full name", points: 10 });
+        }
+
+        // 2. Email (+10)
+        if (resumeData.personalInfo.email.trim()) {
+            score += 10;
+        } else {
+            suggestions.push({ text: "Add your professional email", points: 10 });
+        }
+
+        // 3. Summary > 50 chars (+10)
+        if (resumeData.summary.length > 50) {
+            score += 10;
+        } else {
+            suggestions.push({ text: "Add a detailed summary (>50 chars)", points: 10 });
+        }
+
+        // 4. Experience (+15)
+        if (resumeData.experience.length > 0 && resumeData.experience.some(exp => exp.description.trim().length > 20)) {
             score += 15;
         } else {
-            suggestions.push("Write a stronger summary (40–120 words).");
+            suggestions.push({ text: "Add work experience with details", points: 15 });
         }
 
-        // Projects count >= 2
-        if (resumeData.projects.length >= 2) {
+        // 5. Education (+10)
+        if (resumeData.education.length > 0) {
             score += 10;
         } else {
-            suggestions.push("Add at least 2 projects.");
+            suggestions.push({ text: "Add your educational background", points: 10 });
         }
 
-        // Experience count >= 1
-        if (resumeData.experience.length >= 1) {
+        // 6. 5+ Skills (+10)
+        const totalSkills = Object.values(resumeData.skills).flat().length;
+        if (totalSkills >= 5) {
             score += 10;
         } else {
-            suggestions.push("Add at least 1 professional experience entry.");
+            suggestions.push({ text: "Add at least 5 skills", points: 10 });
         }
 
-        // Skills list >= 12 total items across categories
-        const totalSkillCount = Object.values(resumeData.skills).flat().length;
-        if (totalSkillCount >= 12) {
-            score += 15;
-        } else {
-            suggestions.push("Add more skills across categories (target 12+ total).");
-        }
-
-        // Links
-        if (resumeData.links.github || resumeData.links.linkedin) {
+        // 7. 1+ Projects (+10)
+        if (resumeData.projects.length > 0) {
             score += 10;
         } else {
-            suggestions.push("Add GitHub or LinkedIn.");
+            suggestions.push({ text: "Add at least one project", points: 10 });
         }
 
-        // Impact
-        const hasNumbers = [...resumeData.experience, ...resumeData.projects].some(item =>
-            /\d+|%|\b\d+k\b/i.test(item.description)
+        // 8. Phone (+5)
+        if (resumeData.personalInfo.phone.trim()) {
+            score += 5;
+        } else {
+            suggestions.push({ text: "Add your phone number", points: 5 });
+        }
+
+        // 9. LinkedIn (+5)
+        if (resumeData.links.linkedin.trim()) {
+            score += 5;
+        } else {
+            suggestions.push({ text: "Add your LinkedIn profile", points: 5 });
+        }
+
+        // 10. GitHub (+5)
+        if (resumeData.links.github.trim()) {
+            score += 5;
+        } else {
+            suggestions.push({ text: "Add your GitHub profile", points: 5 });
+        }
+
+        // 11. Summary Action Verbs (+10)
+        const containsActionVerbs = ACTION_VERBS.some(verb =>
+            resumeData.summary.toLowerCase().includes(verb) ||
+            resumeData.experience.some(exp => exp.description.toLowerCase().includes(verb))
         );
-        if (hasNumbers) {
-            score += 15;
+        if (containsActionVerbs) {
+            score += 10;
         } else {
-            suggestions.push("Add metrics/numbers to descriptions.");
+            suggestions.push({ text: "Use action verbs (e.g., Led, Built)", points: 10 });
         }
-
-        // Education
-        if (resumeData.education.length > 0) score += 5;
 
         return {
             score: Math.min(100, score),
-            suggestions: suggestions.slice(0, 3)
+            suggestions: suggestions.slice(0, 4) // Show top 4 suggestions
         };
     }, [resumeData]);
 

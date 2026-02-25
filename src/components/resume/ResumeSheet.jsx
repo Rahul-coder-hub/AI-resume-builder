@@ -1,10 +1,15 @@
 import React from 'react';
-import { ExternalLink, Github, Mail, Phone, MapPin } from 'lucide-react';
+import { ExternalLink, Github, Mail, Phone, MapPin, Globe, Linkedin } from 'lucide-react';
 
 const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 40%)' }) => {
     if (!data) return null;
 
     const { personalInfo, summary, education, experience, projects, skills, links } = data;
+
+    const hasEducation = education && education.length > 0;
+    const hasExperience = experience && experience.length > 0;
+    const hasProjects = projects && projects.length > 0;
+    const hasAnySkills = Object.values(skills).some(list => list && list.length > 0);
 
     const SkillGroup = ({ title, list, isSidebar = false }) => {
         if (!list || list.length === 0) return null;
@@ -42,14 +47,14 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
     // Template Renders
     if (template === 'Modern') {
         return (
-            <div className="bg-white grid grid-cols-[260px_1fr] min-h-[297mm] shadow-xl font-sans text-gray-900 print:shadow-none overflow-hidden">
+            <div className="bg-white grid grid-cols-[260px_1fr] min-h-[297mm] w-[210mm] shadow-xl font-sans text-gray-900 print:shadow-none overflow-hidden">
                 {/* Sidebar */}
                 <aside style={{ backgroundColor: accentColor }} className="p-8 text-white flex flex-col gap-10">
                     <div className="space-y-4">
                         <div className="w-20 h-2 bg-white/20 rounded-full" />
                         <h1 className="text-3xl font-black tracking-tighter uppercase leading-none">
-                            {personalInfo.name.split(' ')[0]}<br />
-                            <span className="opacity-50">{personalInfo.name.split(' ').slice(1).join(' ')}</span>
+                            {personalInfo.name ? personalInfo.name.split(' ')[0] : 'Your'}<br />
+                            <span className="opacity-50">{personalInfo.name ? personalInfo.name.split(' ').slice(1).join(' ') : 'Name'}</span>
                         </h1>
                     </div>
 
@@ -58,18 +63,22 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                         <div className="space-y-3 text-[10px] font-medium">
                             {personalInfo.email && <div className="flex items-center gap-2"><Mail size={12} className="opacity-50" /> {personalInfo.email}</div>}
                             {personalInfo.phone && <div className="flex items-center gap-2"><Phone size={12} className="opacity-50" /> {personalInfo.phone}</div>}
-                            {personalInfo.location && <div className="flex items-center gap-3"><MapPin size={12} className="opacity-50" /> {personalInfo.location}</div>}
+                            {personalInfo.location && <div className="flex items-center gap-2"><MapPin size={12} className="opacity-50" /> {personalInfo.location}</div>}
+                            {links.linkedin && <div className="flex items-center gap-2"><Linkedin size={12} className="opacity-50" /> LinkedIn</div>}
+                            {links.github && <div className="flex items-center gap-2"><Github size={12} className="opacity-50" /> GitHub</div>}
                         </div>
                     </div>
 
-                    <div>
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 border-b border-white/10 pb-2 mb-4">Skills</h2>
-                        <SkillGroup title="Technical" list={skills.technical} isSidebar={true} />
-                        <SkillGroup title="Professional" list={skills.soft} isSidebar={true} />
-                        <SkillGroup title="Tools" list={skills.tools} isSidebar={true} />
-                    </div>
+                    {hasAnySkills && (
+                        <div>
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 border-b border-white/10 pb-2 mb-4">Skills</h2>
+                            <SkillGroup title="Technical" list={skills.technical} isSidebar={true} />
+                            <SkillGroup title="Professional" list={skills.soft} isSidebar={true} />
+                            <SkillGroup title="Tools" list={skills.tools} isSidebar={true} />
+                        </div>
+                    )}
 
-                    {education.length > 0 && (
+                    {hasEducation && (
                         <div>
                             <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 border-b border-white/10 pb-2 mb-4">Education</h2>
                             {education.map((edu, i) => <EducationItem key={i} edu={edu} isSidebar={true} />)}
@@ -86,7 +95,7 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                         </section>
                     )}
 
-                    {experience.length > 0 && (
+                    {hasExperience && (
                         <section>
                             <h2 style={{ color: accentColor }} className="text-[11px] font-black uppercase tracking-[0.3em] mb-6">Experience</h2>
                             <div className="space-y-8">
@@ -97,14 +106,14 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                                             <span className="text-[10px] font-bold text-gray-400">{exp.duration}</span>
                                         </div>
                                         <div className="text-[10px] font-bold uppercase tracking-wide text-gray-400 mb-2">{exp.company}</div>
-                                        <p className="text-xs text-gray-600 leading-relaxed">{exp.description}</p>
+                                        <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{exp.description}</p>
                                     </div>
                                 ))}
                             </div>
                         </section>
                     )}
 
-                    {projects.length > 0 && (
+                    {hasProjects && (
                         <section>
                             <h2 style={{ color: accentColor }} className="text-[11px] font-black uppercase tracking-[0.3em] mb-6">Featured Projects</h2>
                             <div className="space-y-6">
@@ -137,13 +146,15 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
 
     if (template === 'Minimal') {
         return (
-            <div className="bg-white p-[20mm] font-sans text-gray-800 min-h-[297mm]">
+            <div className="bg-white p-[20mm] font-sans text-gray-800 min-h-[297mm] w-[210mm]">
                 <header className="mb-16">
-                    <h1 className="text-4xl font-light tracking-tight text-gray-900 mb-4">{personalInfo.name}</h1>
+                    <h1 className="text-4xl font-light tracking-tight text-gray-900 mb-4">{personalInfo.name || 'Your Name'}</h1>
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-medium text-gray-400 uppercase tracking-widest">
                         {personalInfo.email && <span>{personalInfo.email}</span>}
                         {personalInfo.phone && <span>{personalInfo.phone}</span>}
                         {personalInfo.location && <span>{personalInfo.location}</span>}
+                        {links.linkedin && <span>LinkedIn</span>}
+                        {links.github && <span>GitHub</span>}
                     </div>
                 </header>
 
@@ -155,7 +166,7 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                         </section>
                     )}
 
-                    {experience.length > 0 && (
+                    {hasExperience && (
                         <section className="grid grid-cols-[120px_1fr] gap-8">
                             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-300 pt-1">History</span>
                             <div className="space-y-10">
@@ -166,14 +177,14 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                                             <span style={{ color: accentColor }} className="text-[10px] font-bold">{exp.duration}</span>
                                         </div>
                                         <div className="text-[10px] font-bold uppercase text-gray-400 mb-3">{exp.company}</div>
-                                        <p className="text-xs text-gray-500 font-light leading-relaxed">{exp.description}</p>
+                                        <p className="text-xs text-gray-500 font-light leading-relaxed whitespace-pre-line">{exp.description}</p>
                                     </div>
                                 ))}
                             </div>
                         </section>
                     )}
 
-                    {projects.length > 0 && (
+                    {hasProjects && (
                         <section className="grid grid-cols-[120px_1fr] gap-8">
                             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-300 pt-1">Works</span>
                             <div className="grid grid-cols-2 gap-6">
@@ -192,14 +203,16 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                         </section>
                     )}
 
-                    <section className="grid grid-cols-[120px_1fr] gap-8">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-300 pt-1">Toolkit</span>
-                        <div className="flex flex-wrap gap-x-8 gap-y-4">
-                            {[...skills.technical, ...skills.soft, ...skills.tools].slice(0, 10).map((skill, i) => (
-                                <span key={i} className="text-[10px] font-bold text-gray-900 uppercase tracking-widest">{skill}</span>
-                            ))}
-                        </div>
-                    </section>
+                    {hasAnySkills && (
+                        <section className="grid grid-cols-[120px_1fr] gap-8">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-300 pt-1">Toolkit</span>
+                            <div className="flex flex-wrap gap-x-8 gap-y-4">
+                                {[...skills.technical, ...skills.soft, ...skills.tools].slice(0, 12).map((skill, i) => (
+                                    <span key={i} className="text-[10px] font-bold text-gray-900 uppercase tracking-widest">{skill}</span>
+                                ))}
+                            </div>
+                        </section>
+                    )}
                 </div>
             </div>
         );
@@ -207,9 +220,9 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
 
     // Default: Classic
     return (
-        <div className="bg-white p-[20mm] text-black font-serif min-h-[297mm]">
+        <div className="bg-white p-[20mm] text-black font-serif min-h-[297mm] w-[210mm]">
             <header className="border-b-2 border-black pb-8 mb-10 text-center">
-                <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">{personalInfo.name}</h1>
+                <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">{personalInfo.name || 'Your Name'}</h1>
                 <div className="text-[10px] font-bold tracking-[0.2em] text-gray-400 flex justify-center gap-8 uppercase">
                     {personalInfo.email && <span>{personalInfo.email}</span>}
                     {personalInfo.phone && <span>{personalInfo.phone}</span>}
@@ -226,7 +239,7 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
 
             <div className="grid grid-cols-[1.8fr_1fr] gap-12">
                 <div className="space-y-10">
-                    {experience.length > 0 && (
+                    {hasExperience && (
                         <section>
                             <h2 style={{ color: accentColor }} className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 border-b border-gray-100 pb-1">Experience</h2>
                             <div className="space-y-8">
@@ -237,14 +250,14 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                                             <span className="text-[9px] font-bold uppercase text-gray-400">{exp.duration}</span>
                                         </div>
                                         <div className="text-[10px] font-bold text-gray-500 mb-2 uppercase">{exp.company}</div>
-                                        <p className="text-xs leading-relaxed text-gray-700">{exp.description}</p>
+                                        <p className="text-xs leading-relaxed text-gray-700 whitespace-pre-line">{exp.description}</p>
                                     </div>
                                 ))}
                             </div>
                         </section>
                     )}
 
-                    {projects.length > 0 && (
+                    {hasProjects && (
                         <section>
                             <h2 style={{ color: accentColor }} className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 border-b border-gray-100 pb-1">Key Projects</h2>
                             <div className="grid grid-cols-1 gap-6">
@@ -266,14 +279,16 @@ const ResumeSheet = ({ data, template = 'Classic', accentColor = 'hsl(168, 60%, 
                 </div>
 
                 <div className="space-y-10">
-                    <section>
-                        <h2 style={{ color: accentColor }} className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 border-b border-gray-100 pb-1">Expertise</h2>
-                        <SkillGroup title="Technical" list={skills.technical} />
-                        <SkillGroup title="Soft" list={skills.soft} />
-                        <SkillGroup title="Tools" list={skills.tools} />
-                    </section>
+                    {hasAnySkills && (
+                        <section>
+                            <h2 style={{ color: accentColor }} className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 border-b border-gray-100 pb-1">Expertise</h2>
+                            <SkillGroup title="Technical" list={skills.technical} />
+                            <SkillGroup title="Soft" list={skills.soft} />
+                            <SkillGroup title="Tools" list={skills.tools} />
+                        </section>
+                    )}
 
-                    {education.length > 0 && (
+                    {hasEducation && (
                         <section>
                             <h2 style={{ color: accentColor }} className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 border-b border-gray-100 pb-1">Education</h2>
                             {education.map((edu, i) => <EducationItem key={i} edu={edu} />)}
